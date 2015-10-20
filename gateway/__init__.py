@@ -2,7 +2,6 @@ import logging
 import pid
 import signal
 import daemon
-import sys
 import argparse
 import os
 from pydispatch import dispatcher

@@ -1,6 +1,5 @@
 import logging
 import serial
-import sys
 from gateway import START_SIGNAL
 from gateway import STOP_SIGNAL
 from pydispatch import dispatcher
