@@ -47,7 +47,7 @@ def configure(filename):
         except FileNotFoundError as ex:
             logger.error("Cannot find file: {}".format(ex.filename))
 
-    # Adding a file handler
+    # Adding a file _handler
     logger.handlers.clear()
     logfile = os.path.join(logging_directory, _name + '.log')
     _log_file_handler = logging.FileHandler(logfile)

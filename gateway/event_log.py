@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 _filters = {}
 
 
-def handler(sender, **kwargs):
+def _handler(sender, **kwargs):
     global _filters
     raw_data = repr(kwargs)
     overall_match = True
@@ -19,7 +19,7 @@ def handler(sender, **kwargs):
     if overall_match:
         logger.info("<{}> event from {} -> {}".format(kwargs['signal'], sender, raw_data))
 
-dispatcher.connect(handler, signal=dispatcher.Any, sender=dispatcher.Any)
+dispatcher.connect(_handler, signal=dispatcher.Any, sender=dispatcher.Any)
 
 
 def set_filter(**kwargs):
