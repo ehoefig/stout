@@ -5,4 +5,4 @@ Extendable framework for collection, fusion, enrichment and dissemination of sen
 
 ## Dependencies
 
-pydispatch, python-daemon-3K and (depending on the extensions): python-xbee
+pydispatch, python-daemon, pid and (depending on the extensions): xbee
