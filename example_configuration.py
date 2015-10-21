@@ -15,7 +15,8 @@ gateway.daemonize = False # Starts as a UNIX daemon if set to true
 gateway.logger.setLevel(logging.WARNING)
 
 # Event Log
-event_log.logger.setLevel(logging.DEBUG)
+event_log.logger.setLevel(logging.INFO)
+event_log.set_filter(signal=".*zigbee.*")   # Only display zigbee events
 
 # ZigBee Collector
 zigbee_collector.logger.setLevel(logging.INFO)
