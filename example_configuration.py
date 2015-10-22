@@ -1,8 +1,8 @@
 import logging
+
 import gateway
 from gateway import event_log
-from gateway import zigbee_collector
-from gateway import zigbee_acceleration_data_fuse
+from gateway.zigbee import zigbee_collector, zigbee_sensor_manager
 
 __author__ = 'edzard'
 
@@ -25,4 +25,4 @@ zigbee_collector.serial_port = "/dev/tty.usbserial-A603UIAY"
 zigbee_collector.baud_rate = 9600
 
 # ZigBee Fuse
-zigbee_acceleration_data_fuse.logger.setLevel(logging.DEBUG)
+zigbee_sensor_manager.logger.setLevel(logging.DEBUG)
