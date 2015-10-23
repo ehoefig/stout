@@ -3,17 +3,22 @@ import binascii
 __author__ = 'edzard'
 
 
-# TODO: implement repr()
-class Address:
+class ZigBeeAddress:
+    """
+    Stores a single zigbee address consisting of a 16bit short network address, and a longer 64bit IEEE Mac address.
+    """
 
-    def __init__(self, short, long):
-        self.short, self.long = short, long
+    def __init__(self, network_address, ieee_address):
+        self.network_address, self.mac_address = network_address, ieee_address
 
     def __str__(self):
-        return "{} ({})".format(binascii.hexlify(self.short).decode().upper(),binascii.hexlify(self.long).decode().upper())
+        return "{} ({})".format(binascii.hexlify(self.network_address).decode().upper(),binascii.hexlify(self.mac_address).decode().upper())
 
     def __eq__(self, other):
-        return other and self.short == other.short and self.long == other.long
+        return other and self.network_address == other.short and self.mac_address == other.long
 
     def __hash__(self):
-        return hash(self.short) ^ hash(self.long)
+        return hash(self.network_address) ^ hash(self.mac_address)
+
+
+

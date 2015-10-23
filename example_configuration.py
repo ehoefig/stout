@@ -20,7 +20,7 @@ event_log.logger.setLevel(logging.INFO)
 event_log.set_filter(signal=".*new_sensor_data.*")   # Only display zigbee events
 
 # ZigBee Collector
-zigbee_collector.logger.setLevel(logging.INFO)
+zigbee_collector.logger.setLevel(logging.DEBUG)
 zigbee_collector.serial_port = "/dev/tty.usbserial-A603UIAY"
 zigbee_collector.baud_rate = 9600
 
