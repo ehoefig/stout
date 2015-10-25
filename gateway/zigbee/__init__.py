@@ -1,7 +1,8 @@
 import binascii
 import logging
 from pydispatch import dispatcher
-from gateway.network import Sensor, SENSOR_METADATA_CHANGED
+from gateway.network import SENSOR_METADATA_CHANGED
+from gateway.sensors import Sensor
 
 __author__ = 'edzard'
 
@@ -64,9 +65,10 @@ class ZigBeeSensor(Sensor):
         dispatcher.send(signal=SENSOR_METADATA_CHANGED, sender=__name__, sensor=self, name=self.name)
 
     def __str__(self):
-        return "{} zigbee sensor with address {} of {} kind at {}".format(
-            'Unnamed' if self.name is None else self.name, self.address, 'unknown' if self.kind is None else self.kind,
-            'unknown location' if self.location is None else self.location)
+        if self.name is None:
+            return self.address
+        else:
+            return self.name
 
     def __repr__(self):
         return "gateway.zigbee.ZigBeeSensor({}, {}, {}, {})".format(self.address, self.kind, self.name, self.location)

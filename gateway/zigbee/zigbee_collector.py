@@ -37,19 +37,17 @@ def _frame_handler(frame):
     logger.debug("Received zigbee frame {}".format(frame))
 
 
+def trigger_network_discovery():
+    # TODO: also get local info?
+    _xbee.send('at', frame_id=b'A', command=b'ND') # TODO find out what the frame id is for
+    logger.debug("Sent ND (network discovery) command")
+
 def _start_handler(sender, **kwargs):
     global _port, _xbee
     try:
         # Hook-up ZigBee modem
         _port = serial.Serial(serial_port, baud_rate)
         _xbee = ZigBee(_port, callback=_frame_handler)
-
-         # Network Discovery
-        # TODO: integrate trigger somewhere else?
-        # TODO: also get local info?
-        _xbee.send('at', frame_id=b'A', command=b'ND')
-        logger.debug("Sent ND (network discovery) command")
-
         # Finished
         dispatcher.connect(_stop_handler, signal=STOP_SIGNAL, sender='gateway')
         logger.debug("Zigbee collector started")

@@ -24,6 +24,7 @@ working_directory = '/tmp'
 logging_directory = '/tmp'
 daemonize = False
 logger = logging.getLogger(_name)
+location = None
 
 
 def configure(filename):

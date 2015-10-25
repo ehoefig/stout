@@ -1,7 +1,8 @@
 from pydispatch import dispatcher
+import gateway
 from gateway import START_SIGNAL, STOP_SIGNAL, zigbee
 from gateway.zigbee import ZigBeeAddress, ZigBeeSensor
-from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE
+from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE, trigger_network_discovery
 from gateway.network import NEW_DATA_SIGNAL, add_sensor, get_sensor, has_sensor_for_address
 
 __author__ = 'edzard'
@@ -30,6 +31,11 @@ def _identify_source_address(params):
         # Do we know the type?
         if address in map:
             sensor.kind = map[address]
+        # Try to set initial location
+        if gateway.location is not None:
+            sensor.location = gateway.location
+        # Try to get some more infos (e.g. name)
+        trigger_network_discovery()
     return sensor
 
 
@@ -51,7 +57,7 @@ def _command_handler(sender, **kwargs):
     if command == 'ND':
         parameter = frame['parameter']
         sensor = _identify_source_address(parameter)
-        sensor.name = parameter['node_identifier']
+        sensor.name = parameter['node_identifier'].decode()
         # TODO What happens with more than one node?
         # TODO Use other information as well?
     else:
