@@ -1,8 +1,6 @@
-import logging
 import serial
 from datetime import datetime
-from gateway import START_SIGNAL
-from gateway import STOP_SIGNAL
+from gateway import START_SIGNAL, STOP_SIGNAL, zigbee
 from pydispatch import dispatcher
 from xbee import ZigBee
 from serial.serialutil import SerialException
@@ -17,7 +15,9 @@ _xbee = None
 
 serial_port = "/dev/tty/tty.usbserial"
 baud_rate = 9600
-logger = logging.getLogger(__name__)
+logger = zigbee.logger
+
+# TODO Can we get signal strength?
 
 
 # Callback for the xbee library
@@ -45,14 +45,14 @@ def _start_handler(sender, **kwargs):
         _xbee = ZigBee(_port, callback=_frame_handler)
 
          # Network Discovery
-        # TODO: integrate somewhere else?
+        # TODO: integrate trigger somewhere else?
         # TODO: also get local info?
         _xbee.send('at', frame_id=b'A', command=b'ND')
         logger.debug("Sent ND (network discovery) command")
 
         # Finished
         dispatcher.connect(_stop_handler, signal=STOP_SIGNAL, sender='gateway')
-        logger.debug("started")
+        logger.debug("Zigbee collector started")
     except SerialException as sex:
         logger.error(sex.strerror)  # Serial port not found?
 
@@ -62,6 +62,6 @@ dispatcher.connect(_start_handler, signal=START_SIGNAL, sender='gateway')
 def _stop_handler(sender, **kwargs):
     _xbee.halt()
     _port.close()
-    logger.debug("stopped.")
+    logger.debug("ZigBee collector stopped")
 
 
