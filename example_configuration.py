@@ -18,6 +18,9 @@ gateway.daemonize = False # Starts as a UNIX daemon if set to true
 gateway.location = 'Berlin'
 gateway.logger.setLevel(logging.WARNING)
 
+# Timer
+#timer.logger.setLevel(logging.WARNING)
+
 # Network management
 gateway.network.logger.setLevel(logging.INFO)
 
@@ -29,6 +32,6 @@ zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040E621B0')] = d
 
 # Event Log
 event_log.logger.setLevel(logging.INFO)
-event_log.set_filter(signal="new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
+event_log.set_filter(signal="timer|new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
 
 
