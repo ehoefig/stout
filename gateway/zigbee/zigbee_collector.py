@@ -7,6 +7,7 @@ from serial.serialutil import SerialException
 
 __author__ = 'edzard'
 
+ZIGBEE_RX = 'zigbee_rx'
 ZIGBEE_RX_IO_DATA_LONG_ADDR = 'zigbee_rx_io_data_long_addr'
 ZIGBEE_AT_RESPONSE = 'zigbee_at_response'
 
@@ -26,6 +27,7 @@ def _frame_handler(frame):
     timestamp = datetime.now()  # TODO Add timezone support
     # Send appropriate event
     type_switch= {
+        'rx' : ZIGBEE_RX,
         'rx_io_data_long_addr': ZIGBEE_RX_IO_DATA_LONG_ADDR,
         'at_response': ZIGBEE_AT_RESPONSE
     }

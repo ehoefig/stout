@@ -2,7 +2,7 @@ from pydispatch import dispatcher
 import gateway
 from gateway import START_SIGNAL, STOP_SIGNAL, zigbee
 from gateway.zigbee import ZigBeeAddress, ZigBeeSensor
-from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE, trigger_network_discovery
+from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE, ZIGBEE_RX, trigger_network_discovery
 from gateway.network import NEW_DATA_SIGNAL, add_sensor, get_sensor, has_sensor_for_address
 
 __author__ = 'edzard'
@@ -39,7 +39,22 @@ def _identify_source_address(params):
     return sensor
 
 
-def _data_handler(sender, **kwargs):
+def _rx_data_handler(sender, **kwargs):
+    frame = kwargs['frame']
+    timestamp = kwargs['timestamp']
+    sensor = _identify_source_address(frame)
+    data = frame['rf_data']
+    # TODO: use sensor objects to map data to python
+    logger.info("Data: {}".format(data))
+    for i in range(0, 5):
+        # dispatch 5 separate samples
+        # dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp, acceleration=data)
+        pass
+
+dispatcher.connect(_rx_data_handler, signal=ZIGBEE_RX) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
+
+
+def _io_sample_handler(sender, **kwargs):
     frame = kwargs['frame']
     timestamp = kwargs['timestamp']
     sensor = _identify_source_address(frame)
@@ -48,7 +63,7 @@ def _data_handler(sender, **kwargs):
         data = {'x': sample_tuple['adc-0'], 'y': sample_tuple['adc-1'], 'z': sample_tuple['adc-2']}
         dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp, acceleration=data)
 
-dispatcher.connect(_data_handler, signal=ZIGBEE_RX_IO_DATA_LONG_ADDR) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
+dispatcher.connect(_io_sample_handler, signal=ZIGBEE_RX_IO_DATA_LONG_ADDR) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
 
 
 def _command_handler(sender, **kwargs):

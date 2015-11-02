@@ -29,9 +29,10 @@ zigbee.logger.setLevel(logging.INFO)
 zigbee_collector.serial_port = "/dev/tty.usbserial-A603UIAY"
 zigbee_collector.baud_rate = 9600
 zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040E621B0')] = definitions.ADXL335
+zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040EAEBA3')] = definitions.BNO055
 
 # Event Log
-event_log.logger.setLevel(logging.INFO)
+event_log.logger.setLevel(logging.WARNING)
 event_log.set_filter(signal="timer|new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
 
 
