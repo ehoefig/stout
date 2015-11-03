@@ -1,7 +1,7 @@
 from pydispatch import dispatcher
 import gateway
 from gateway import START_SIGNAL, STOP_SIGNAL, zigbee
-from gateway.zigbee import ZigBeeAddress, ZigBeeSensor
+from gateway.zigbee import ZigBeeAddress, ZigBeeBaseSensor
 from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE, ZIGBEE_RX, trigger_network_discovery
 from gateway.network import NEW_DATA_SIGNAL, add_sensor, get_sensor, has_sensor_for_address
 
@@ -24,13 +24,13 @@ def _identify_source_address(params):
     if has_sensor_for_address(address):
         sensor = get_sensor(address)
     else:
-        # Create a new one
-        sensor = ZigBeeSensor(address)
-        add_sensor(sensor)
-        logger.debug("ZigBee sensor with address {} created".format(address))
         # Do we know the type?
-        if address in map:
-            sensor.kind = map[address]
+        if address.as_hex() in map:
+            # Create a new one
+            sensor_class = map[address.as_hex()]
+            sensor = sensor_class(address)
+            add_sensor(sensor)
+            logger.debug("{} sensor with address {} created".format(type(sensor).__name__, address))
         # Try to set initial location
         if gateway.location is not None:
             sensor.location = gateway.location

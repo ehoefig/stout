@@ -10,15 +10,15 @@ logger = logging.getLogger(__name__)
 
 # TODO add "unit" field?
 
-class Sensor:
+class BaseSensor:
     """
     Stores information about a single network.
     """
 
-    def __init__(self, address, kind=None, location=None):
+    def __init__(self, address, *args, **kwargs):
         self.__address = address
-        self.__kind = kind
-        self.__location = location
+        self.__kind = kwargs.get('kind', None)
+        self.__location = kwargs.get('location', None)
 
     @property
     def address(self):

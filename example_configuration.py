@@ -2,8 +2,7 @@ import logging
 
 import gateway
 from gateway import network, zigbee
-from gateway.sensors import definitions
-from gateway.zigbee import zigbee_collector, zigbee_sensor_manager, ZigBeeAddress
+from gateway.zigbee import zigbee_collector, zigbee_sensor_manager, BNO055
 from gateway.helper import event_log
 
 __author__ = 'edzard'
@@ -25,11 +24,11 @@ gateway.logger.setLevel(logging.WARNING)
 gateway.network.logger.setLevel(logging.INFO)
 
 # ZigBee
-zigbee.logger.setLevel(logging.INFO)
+zigbee.logger.setLevel(logging.DEBUG)
 zigbee_collector.serial_port = "/dev/tty.usbserial-A603UIAY"
 zigbee_collector.baud_rate = 9600
-zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040E621B0')] = definitions.ADXL335
-zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040EAEBA3')] = definitions.BNO055
+zigbee_sensor_manager.map['0013A20040EAEBA3'] = BNO055
+#zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040E621B0')] = definitions.ADXL335
 
 # Event Log
 event_log.logger.setLevel(logging.WARNING)
