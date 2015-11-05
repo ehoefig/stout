@@ -49,18 +49,18 @@ class ZigBeeBaseSensor(BaseSensor):
     Contains the specifics for ZigBee Sensors
     """
     
-    def __init__(self, address, *args, **kwargs):
-        super().__init__(address, args, kwargs)
-        self.__name = kwargs.get('name', None)
+    def __init__(self, address, name=None, kind=None, location=None):
+        super().__init__(address, kind=kind, location=location)
+        self._name = name
 
     @property
     def name(self):
-        return self.__name
+        return self._name
 
     @name.setter
     def name(self, value):
         logger.debug("Changing sensor {} name from {} to {}".format(self.address, self.name, value))
-        self.__name = value
+        self._name = value
         dispatcher.send(signal=SENSOR_METADATA_CHANGED, sender=__name__, sensor=self, name=self.name)
 
     def __str__(self):
@@ -75,9 +75,8 @@ class ZigBeeBaseSensor(BaseSensor):
 
 class BNO055(ZigBeeBaseSensor):
 
-    def __init__(self, address, *args, **kwargs):
-        kwargs['kind'] = 'BNO055'
-        super().__init__(address, args, kwargs)
+    def __init__(self, address,  name=None, location=None):
+        super().__init__(address, name=name, kind='BNO055', location=location)
 
     def convert(self, data):
         pass

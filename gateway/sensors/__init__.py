@@ -15,38 +15,33 @@ class BaseSensor:
     Stores information about a single network.
     """
 
-    def __init__(self, address, *args, **kwargs):
-        self.__address = address
-        self.__kind = kwargs.get('kind', None)
-        self.__location = kwargs.get('location', None)
+    def __init__(self, address, kind=None, location=None):
+        self._address = address
+        self._kind = kind #kwargs.get('kind', None)
+        self._location = location #kwargs.get('location', None)
 
     @property
     def address(self):
-        return self.__address
-
-    @address.setter
-    def address(self, value):
-        # Read-only value
-        pass
+        return self._address
 
     @property
     def kind(self):
-        return self.__kind
+        return self._kind
 
     @kind.setter
     def kind(self, value):
         logger.debug("Changing sensor {} kind from {} to {}".format(self.address, self.kind, value))
-        self.__kind = value
+        self._kind = value
         dispatcher.send(signal=SENSOR_METADATA_CHANGED, sender=__name__, sensor=self, kind=self.kind)
 
     @property
     def location(self):
-        return self.__location
+        return self._location
 
     @location.setter
     def location(self, value):
         logger.debug("Changing sensor {} location from {} to {}".format(self.address, self.location, value))
-        self.__location = value
+        self._location = value
         dispatcher.send(signal=SENSOR_METADATA_CHANGED, sender=__name__, sensor=self, location=self.location)
 
     def __str__(self):
