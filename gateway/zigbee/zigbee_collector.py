@@ -42,7 +42,7 @@ def _frame_handler(frame):
 def trigger_network_discovery():
     # TODO: also get local info?
     _xbee.send('at', frame_id=b'A', command=b'ND') # TODO find out what the frame id is for
-    logger.debug("Sent ND (network discovery) command")
+    logger.debug("Sent ND (node discover) command")
 
 def _start_handler(sender, **kwargs):
     global _port, _xbee

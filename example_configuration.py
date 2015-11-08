@@ -24,14 +24,14 @@ gateway.logger.setLevel(logging.WARNING)
 gateway.network.logger.setLevel(logging.INFO)
 
 # ZigBee
-zigbee.logger.setLevel(logging.DEBUG)
+zigbee.logger.setLevel(logging.INFO)
 zigbee_collector.serial_port = "/dev/tty.usbserial-A603UIAY"
 zigbee_collector.baud_rate = 9600
 zigbee_sensor_manager.map['0013A20040EAEBA3'] = zigbee.BNO055
-#zigbee_sensor_manager.map[ZigBeeAddress.from_hex_string('0013A20040E621B0')] = definitions.ADXL335
+zigbee_sensor_manager.map['0013A20040E621B0'] = zigbee.ADXL335
 
 # Event Log
-event_log.logger.setLevel(logging.WARNING)
+event_log.logger.setLevel(logging.INFO)
 event_log.set_filter(signal="timer|new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
 
 

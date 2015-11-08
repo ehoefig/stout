@@ -80,3 +80,12 @@ class BNO055(ZigBeeBaseSensor):
 
     def convert(self, data):
         pass
+
+
+class ADXL335(ZigBeeBaseSensor):
+
+    def __init__(self, address,  name=None, location=None):
+        super().__init__(address, name=name, kind='ADXL335', location=location)
+
+    def convert(self, data):
+        pass

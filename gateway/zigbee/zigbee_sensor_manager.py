@@ -31,11 +31,12 @@ def _identify_source_address(params):
             sensor = sensor_class(address)
             add_sensor(sensor)
             logger.debug("{} sensor with address {} created".format(type(sensor).__name__, address))
-        # Try to set initial location
-        if gateway.location is not None:
-            sensor.location = gateway.location
-        # Try to get some more infos (e.g. name)
-        trigger_network_discovery()
+            # Try to set initial location
+            if gateway.location is not None:
+                sensor.location = gateway.location
+            # Try to get some more infos (e.g. name)
+            # TODO Trigger ND based on timer? (At least wait until a pending ND is answered)
+            trigger_network_discovery()
     return sensor
 
 
@@ -69,14 +70,18 @@ dispatcher.connect(_io_sample_handler, signal=ZIGBEE_RX_IO_DATA_LONG_ADDR) # TOD
 def _command_handler(sender, **kwargs):
     frame = kwargs['frame']
     command = frame['command'].decode()
-    if command == 'ND':
-        parameter = frame['parameter']
-        sensor = _identify_source_address(parameter)
-        sensor.name = parameter['node_identifier'].decode()
-        # TODO What happens with more than one node?
-        # TODO Use other information as well?
+    failure = frame['status'] == b'\x01'
+    if failure:
+        logger.warning("{} command failed".format(command))
     else:
-        logger.warning("Cannot handle command {}".format(command));
+        if command == 'ND':
+            parameter = frame['parameter']
+            sensor = _identify_source_address(parameter)
+            sensor.name = parameter['node_identifier'].decode()
+            # TODO What happens with more than one node?
+            # TODO Use other information as well?
+        else:
+            logger.warning("Cannot handle command {}".format(command));
 
 dispatcher.connect(_command_handler, signal=ZIGBEE_AT_RESPONSE) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
 
