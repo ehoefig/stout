@@ -1,7 +1,8 @@
 from pydispatch import dispatcher
+from datetime import timedelta
 import gateway
 from gateway import START_SIGNAL, STOP_SIGNAL, zigbee
-from gateway.zigbee import ZigBeeAddress, ZigBeeBaseSensor
+from gateway.zigbee import ZigBeeAddress, ZigBeeSensor
 from gateway.zigbee.zigbee_collector import ZIGBEE_RX_IO_DATA_LONG_ADDR, ZIGBEE_AT_RESPONSE, ZIGBEE_RX, trigger_network_discovery
 from gateway.network import NEW_DATA_SIGNAL, add_sensor, get_sensor, has_sensor_for_address
 
@@ -19,38 +20,52 @@ def _start_handler(sender, **kwargs):
 dispatcher.connect(_start_handler, signal=START_SIGNAL, sender='gateway')
 
 
-def _identify_source_address(params):
+def _get_sensor_from_frame_data(params):
+
     address = ZigBeeAddress(params['source_addr_long'], params['source_addr'])
     if has_sensor_for_address(address):
+        # Already know that one!
         sensor = get_sensor(address)
     else:
-        # Do we know the type?
+
+        # Check if type is given by configuration mapping
         if address.as_hex() in map:
-            # Create a new one
+            # Create specific sensor type
             sensor_class = map[address.as_hex()]
             sensor = sensor_class(address)
-            add_sensor(sensor)
-            logger.debug("{} sensor with address {} created".format(type(sensor).__name__, address))
-            # Try to set initial location
-            if gateway.location is not None:
-                sensor.location = gateway.location
-            # Try to get some more infos (e.g. name)
-            # TODO Trigger ND based on timer? (At least wait until a pending ND is answered)
-            trigger_network_discovery()
+        else:
+            # Choose generic ZigBee sensor
+            sensor = ZigBeeSensor(address)
+
+        add_sensor(sensor)
+        logger.debug("{} with address {} created".format(type(sensor).__name__, address))
+
+        # Try to set initial location
+        if gateway.location is not None:
+            sensor.location = gateway.location
+
+        # Try to get some more infos (e.g. name)
+        # TODO Trigger ND based on timer? (At least wait until a pending ND is answered)
+        trigger_network_discovery()
+
     return sensor
 
 
 def _rx_data_handler(sender, **kwargs):
     frame = kwargs['frame']
     timestamp = kwargs['timestamp']
-    sensor = _identify_source_address(frame)
+    sensor = _get_sensor_from_frame_data(frame)
     data = frame['rf_data']
-    # TODO: use sensor objects to map data to python
-    logger.info("Data: {}".format(data))
-    for i in range(0, 5):
-        # dispatch 5 separate samples
-        # dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp, acceleration=data)
-        pass
+    num_samples = sensor.get_num_samples_per_frame()
+    sample_size = len(data) // num_samples
+    # TODO FEATURE normalize timesteamps in a sensor-independent way?
+    sample_time_delta = timedelta(microseconds=1000000/sensor.get_sampling_frequency())
+    timestamp -= (num_samples-1) * sample_time_delta
+    for i in range(0, num_samples):
+        orientation, linear_acceleration = sensor.convert(data[i*sample_size:i*sample_size+sample_size])
+        dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp,
+                        orientation=orientation, linear_acceleration=linear_acceleration)
+        timestamp += sample_time_delta
 
 dispatcher.connect(_rx_data_handler, signal=ZIGBEE_RX) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
 
@@ -58,11 +73,11 @@ dispatcher.connect(_rx_data_handler, signal=ZIGBEE_RX) # TODO Why does this para
 def _io_sample_handler(sender, **kwargs):
     frame = kwargs['frame']
     timestamp = kwargs['timestamp']
-    sensor = _identify_source_address(frame)
+    sensor = _get_sensor_from_frame_data(frame)
     for sample_tuple in frame['samples']:
-        # TODO use sensor map to access sensor data
-        data = {'x': sample_tuple['adc-0'], 'y': sample_tuple['adc-1'], 'z': sample_tuple['adc-2']}
-        dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp, acceleration=data)
+        acceleration = sensor.convert(sample_tuple)
+        # TODO adjust timestamp for multiple samples
+        dispatcher.send(signal=NEW_DATA_SIGNAL, sender=__name__, sensor=sensor, timestamp=timestamp, acceleration=acceleration)
 
 dispatcher.connect(_io_sample_handler, signal=ZIGBEE_RX_IO_DATA_LONG_ADDR) # TODO Why does this parameter not work? -> sender='gateway.zigbee_collector'
 
@@ -76,7 +91,7 @@ def _command_handler(sender, **kwargs):
     else:
         if command == 'ND':
             parameter = frame['parameter']
-            sensor = _identify_source_address(parameter)
+            sensor = _get_sensor_from_frame_data(parameter)
             sensor.name = parameter['node_identifier'].decode()
             # TODO What happens with more than one node?
             # TODO Use other information as well?

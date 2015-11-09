@@ -1,8 +1,9 @@
 import binascii
 import logging
 from pydispatch import dispatcher
+from struct import unpack
 from gateway.network import SENSOR_METADATA_CHANGED
-from gateway.sensors import BaseSensor
+from gateway.sensors import Sensor
 
 __author__ = 'edzard'
 
@@ -13,10 +14,6 @@ class ZigBeeAddress:
     """
     Stores a single zigbee address consisting of a 16bit short network address, and a longer 64bit IEEE Mac address.
     """
-
-    # @staticmethod
-    # def from_hex_string(str_address):
-    #     return ZigBeeAddress(binascii.unhexlify(str_address))
 
     def as_hex(self):
         return binascii.hexlify(self._mac_address).decode().upper()
@@ -44,7 +41,7 @@ class ZigBeeAddress:
         return hash(self._mac_address)
 
 
-class ZigBeeBaseSensor(BaseSensor):
+class ZigBeeSensor(Sensor):
     """
     Contains the specifics for ZigBee Sensors
     """
@@ -73,19 +70,32 @@ class ZigBeeBaseSensor(BaseSensor):
         return "gateway.zigbee.ZigBeeSensor({}, {}, {}, {})".format(self.address, self.kind, self.name, self.location)
 
 
-class BNO055(ZigBeeBaseSensor):
+# TODO FEATURE generic base class for RX frame based sensors?
+class BNO055(ZigBeeSensor):
 
     def __init__(self, address,  name=None, location=None):
         super().__init__(address, name=name, kind='BNO055', location=location)
 
     def convert(self, data):
-        pass
+        ow, ox, oy, oz, ax, ay, az = unpack('hhhhhhh', data)
+        orientation = {'w': ow/(1 << 14), 'x': ox/(1 << 14), 'y': oy/(1 << 14), 'z': oz/(1 << 14)}
+        linear_acceleration = {'x': ax/100, 'y': ay/100, 'z': az/100}
+        return orientation, linear_acceleration
+
+    def get_num_samples_per_frame(self):
+        return 5
+
+    def get_sampling_frequency(self):   # Hz
+        return 20
 
 
-class ADXL335(ZigBeeBaseSensor):
+class ADXL335(ZigBeeSensor):
 
     def __init__(self, address,  name=None, location=None):
         super().__init__(address, name=name, kind='ADXL335', location=location)
 
     def convert(self, data):
-        pass
+        # TODO FEATURE generic unpacking of IO sample data
+        x,y,z = data['adc-0'], data['adc-1'], data['adc-2']
+        # TODO Proper scaling of values
+        return {'x': x/1, 'y': y/1, 'z': z/1}

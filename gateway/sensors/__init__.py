@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # TODO add "unit" field?
 
-class BaseSensor:
+class Sensor:
     """
     Stores information about a single network.
     """
