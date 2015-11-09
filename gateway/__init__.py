@@ -12,6 +12,7 @@ __author__ = 'edzard'
 CONFIG_UPDATE_SIGNAL = 'configuration-update'
 START_SIGNAL = 'start'
 STOP_SIGNAL = 'stop'
+NEW_DATA_SIGNAL = 'new_data'
 
 _name = 'gateway'
 _config_filename = None

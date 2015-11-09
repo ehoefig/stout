@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('apscheduler').parent = logger
 
 
-def _start_handler(sender, **kwargs):
+def _start_handler():
     dispatcher.connect(_stop_handler, signal=STOP_SIGNAL, sender='gateway')
     _scheduler.add_job(_timer_up, 'interval', seconds=1)
     _scheduler.start()
@@ -24,10 +24,10 @@ dispatcher.connect(_start_handler, signal=START_SIGNAL, sender='gateway')
 
 
 def _timer_up():
-    dispatcher.send(TIMER_SIGNAL, __name__)
+    dispatcher.send(signal=TIMER_SIGNAL, sender=__name__)
 
 
-def _stop_handler(sender, **kwargs):
+def _stop_handler():
     _scheduler.shutdown()
     logger.debug("Timer stopped")
 

@@ -10,7 +10,6 @@ __author__ = 'edzard'
 SENSOR_DISCOVERED = 'discovered_sensor'
 SENSOR_LOST = 'lost_sensor'
 SENSOR_METADATA_CHANGED = 'sensor_metadata_changed'
-NEW_DATA_SIGNAL = 'new_data'
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +50,12 @@ def add_sensor(sensor):
         dispatcher.send(signal=SENSOR_DISCOVERED, sender=__name__, sensor=sensor)
 
 
-def _start_handler(sender, **kwargs):
+def _start_handler():
     dispatcher.connect(_stop_handler, signal=STOP_SIGNAL, sender='gateway')
     logger.debug("started")
 
 dispatcher.connect(_start_handler, signal=START_SIGNAL, sender='gateway')
 
 
-def _stop_handler(sender, **kwargs):
+def _stop_handler():
     logger.debug("stopped.")
