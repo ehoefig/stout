@@ -62,10 +62,15 @@ class SensorManager:
         sample_time_delta = timedelta(microseconds=1000000/sensor.get_sampling_frequency())
         timestamp -= (num_samples-1) * sample_time_delta
         for i in range(0, num_samples):
-            orientation, linear_acceleration = sensor.convert(data[i*sample_size:i*sample_size+sample_size])
+            orientation, linear_acceleration, sensor_timestamp_ms = sensor.convert(data[i*sample_size:i*sample_size+sample_size])
+
+            # TODO check out the timestamps. where do we lose packets?
+            print(sensor_timestamp_ms)
+
+
             dispatcher.send(signal=NEW_DATA_SIGNAL, sender=self, sensor=sensor, timestamp=timestamp,
                             orientation=orientation, linear_acceleration=linear_acceleration)
-            timestamp += sample_time_delta
+            timestamp += sample_time_delta # TODO Take sensor-local timestamping into account
 
     def _io_sample_handler(self, frame, timestamp):
         sensor = self._get_sensor_from_frame_data(frame)

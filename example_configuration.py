@@ -33,7 +33,7 @@ gateway.network.logger.setLevel(logging.INFO)
 #timer.logger.setLevel(logging.WARNING)
 
 # Event Log
-event_log.logger.setLevel(logging.INFO)
+event_log.logger.setLevel(logging.WARNING)
 event_log.set_filter(signal="timer|new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
 
 # CSV output

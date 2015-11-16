@@ -28,6 +28,7 @@ class Collector:
 
     # Callback for the xbee library
     def _frame_handler(self, frame):
+        logger.debug("Received zigbee frame {}".format(frame))
         # Timestamp it
         timestamp = datetime.now()  # TODO Add timezone support
         # Send appropriate event
@@ -41,7 +42,6 @@ class Collector:
             dispatcher.send(signal=signal, sender=self, timestamp=timestamp, frame=frame)
         else:
             logger.warning("{} does not know how to deal with {} frames".format(__name__, frame['id']))
-        logger.debug("Received zigbee frame {}".format(frame))
 
     def trigger_network_discovery(self):
         # TODO: also get local info?
