@@ -5,7 +5,7 @@ from gateway import network, zigbee
 from gateway.zigbee.zigbee_collector import Collector
 from gateway.zigbee.zigbee_sensor_manager import SensorManager
 from gateway.helper import event_log
-#from gateway.output import csv
+from gateway.output import csv
 
 __author__ = 'edzard'
 
@@ -21,10 +21,12 @@ gateway.logger.setLevel(logging.WARNING)
 
 # ZigBee
 zigbee.logger.setLevel(logging.INFO)
-collector = Collector("/dev/tty.usbserial-A603UIAY", 115200)
+collector = Collector("/dev/tty.usbserial-A6YP8NRQ", 9600)
 manager = SensorManager()
-manager.map['0013A20040EAEBA3'] = zigbee.BNO055
-manager.map['0013A20040E621B0'] = zigbee.ADXL335
+manager.map['0013A20040E621B0'] = zigbee.BNO055
+#manager.map['0013A20040E621B0'] = zigbee.ADXL335
+
+
 
 # Network management
 gateway.network.logger.setLevel(logging.INFO)
@@ -37,6 +39,6 @@ event_log.logger.setLevel(logging.WARNING)
 event_log.set_filter(signal="timer|new_data|discovered_sensor|sensor_metadata_changed")   # Show all incoming data + metadata changes
 
 # CSV output
-#csv.logger.setLevel(logging.DEBUG)
-#csv.path = '/tmp/sensor_data.csv'
+csv.logger.setLevel(logging.DEBUG)
+csv.path = '/tmp/sensor_data.csv'
 

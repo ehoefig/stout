@@ -5,6 +5,8 @@ from pydispatch import dispatcher
 from xbee import ZigBee
 from serial.serialutil import SerialException
 
+from struct import unpack
+
 __author__ = 'edzard'
 
 ZIGBEE_RX = 'zigbee_rx'
@@ -28,6 +30,10 @@ class Collector:
 
     # Callback for the xbee library
     def _frame_handler(self, frame):
+        #if 'rf_data' in frame:
+            #seqNo = unpack("<h",frame['rf_data']);
+            #print(seqNo[0])
+        #return
         logger.debug("Received zigbee frame {}".format(frame))
         # Timestamp it
         timestamp = datetime.now()  # TODO Add timezone support
@@ -53,7 +59,7 @@ class Collector:
         try:
             # Hook-up ZigBee modem
             _port = serial.Serial(self.serial_port, self.baud_rate)
-            _xbee = ZigBee(_port, callback=self._frame_handler)
+            _xbee = ZigBee(_port, callback=self._frame_handler, escaped=True)
             # Finished
             dispatcher.connect(self._stop_handler, signal=STOP_SIGNAL, sender='gateway')
             logger.debug("started")

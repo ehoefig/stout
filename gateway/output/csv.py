@@ -32,6 +32,7 @@ dispatcher.connect(_data_handler, signal=NEW_DATA_SIGNAL)
 
 
 def _stop_handler():
+    # TODO: Graceful disconnect: finish writes before closing file
     _file.close()
     logger.debug("CSV output handler finished appending to {}".format(_file.name))
 

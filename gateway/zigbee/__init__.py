@@ -77,10 +77,10 @@ class BNO055(ZigBeeSensor):
         super().__init__(address, name=name, kind='BNO055', location=location)
 
     def convert(self, data):
-        ow, ox, oy, oz, ax, ay, az, sensor_timestamp_ms = unpack('<hhhhhhhL', data)
+        sensor_timestamp_ms, ow, ox, oy, oz, ax, ay, az = unpack('<Lhhhhhhh', data)
         orientation = {'w': ow/(1 << 14), 'x': ox/(1 << 14), 'y': oy/(1 << 14), 'z': oz/(1 << 14)}
         linear_acceleration = {'x': ax/100, 'y': ay/100, 'z': az/100}
-        return orientation, linear_acceleration, sensor_timestamp_ms
+        return sensor_timestamp_ms, orientation, linear_acceleration
 
     def get_num_samples_per_frame(self):
         return 4
